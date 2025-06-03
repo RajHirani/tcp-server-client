@@ -1,29 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import Client from './component/client/Client';
+import Server from './component/server/Server';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<'server' | 'client'>('server');
+
+  useEffect(() => {
+    document.body.setAttribute('data-bs-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
+
+  const handleModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMode(event.target.value as 'server' | 'client')
+  }
 
   return (
     <>
-      <div>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <button className="btn btn-outline-secondary theme-toggle" onClick={toggleTheme} title="Toggle Theme">
+        <i className="bi bi-sun-fill"></i>
+      </button>
+
+      <div className="container-fluid py-4">
+        {/* Header */}
+        <div className="text-center mb-5">
+          <h1 className="display-4 fw-bold gradient-text mb-3">TCP Server/Client Communication Tool</h1>
+          <p className="lead text-muted">Professional TCP communication interface for server and client operations</p>
+        </div>
+
+
+        {/* Mode Selector */}
+        <div className="d-flex justify-content-center mb-4">
+          <div className="btn-group" role="group">
+            <input type="radio" className="btn-check" name="mode" id="serverMode" autoComplete="off" value="server" checked={mode === "server"} onChange={handleModeChange}/>
+            <label className="btn btn-outline-primary" htmlFor='serverMode'>
+              <i className="bi bi-hdd-network me-2"></i>TCP Server
+            </label>
+
+            <input type="radio" className="btn-check" name="mode" id="clientMode" autoComplete="off" value="client" checked={mode === "client"} onChange={handleModeChange}/>
+            <label className="btn btn-outline-primary" htmlFor='clientMode'>
+              <i className="bi bi-router me-2"></i>TCP Client
+            </label>
+          </div>
+        </div>
+
+        {mode === 'server' ? <Server /> : <Client /> }
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
