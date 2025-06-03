@@ -1,0 +1,965 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCP Server/Client Communication Tool</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #1a1a1a;
+            --bs-body-color: #ffffff;
+            --bs-border-color: #444;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .log-container {
+            background-color: #000;
+            color: #fff;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            border-radius: 0.375rem;
+            padding: 1rem;
+        }
+
+        [data-bs-theme="dark"] .log-container {
+            background-color: #0a0a0a;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        
+        .log-entry:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+            border-radius: 0.25rem;
+            padding: 0.1rem 0.25rem;
+        }
+        
+        .log-sent { color: #28a745; }
+        .log-received { color: #007bff; }
+        .log-system { color: #ffc107; }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(45deg, #0d6efd, #6f42c1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .client-item {
+            transition: all 0.3s ease;
+        }
+
+        .client-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        [data-bs-theme="dark"] .client-item:hover {
+            box-shadow: 0 4px 8px rgba(255,255,255,0.1);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .tab-content-section {
+            min-height: 400px;
+        }
+
+        .custom-card {
+            border: 1px solid var(--bs-border-color);
+            background-color: var(--bs-body-bg);
+        }
+
+        [data-bs-theme="dark"] .custom-card {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+    </style>
+</head>
+<body data-bs-theme="light">
+    <!-- Theme Toggle -->
+    <button class="btn btn-outline-secondary theme-toggle" id="themeToggle">
+        <i class="bi bi-sun-fill" id="themeIcon"></i>
+    </button>
+
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold gradient-text mb-3">TCP Server/Client Communication Tool</h1>
+            <p class="lead text-muted">Professional TCP communication interface for server and client operations</p>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="d-flex justify-content-center mb-4">
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="mode" id="serverMode" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="serverMode">
+                    <i class="bi bi-hdd-network me-2"></i>TCP Server
+                </label>
+                
+                <input type="radio" class="btn-check" name="mode" id="clientMode" autocomplete="off">
+                <label class="btn btn-outline-primary" for="clientMode">
+                    <i class="bi bi-router me-2"></i>TCP Client
+                </label>
+            </div>
+        </div>
+
+        <!-- Server Mode -->
+        <div id="serverSection" class="tab-content-section">
+            <div class="card custom-card shadow">
+                <!-- Server Tabs -->
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <ul class="nav nav-pills" id="serverTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="server1-tab" data-bs-toggle="pill" data-bs-target="#server1" type="button" role="tab">
+                                    Default Server
+                                    <span class="badge bg-success ms-2">ON</span>
+                                </button>
+                            </li>
+                        </ul>
+                        <button class="btn btn-sm btn-outline-secondary" id="addServerBtn">
+                            <i class="bi bi-plus"></i> New Server
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Server Content -->
+                <div class="card-body">
+                    <div class="tab-content" id="serverTabContent">
+                        <div class="tab-pane fade show active" id="server1" role="tabpanel">
+                            <div class="row g-4">
+                                <!-- Server Controls -->
+                                <div class="col-lg-4">
+                                    <!-- Server Configuration -->
+                                    <div class="card custom-card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <span class="status-indicator bg-success"></span>
+                                                Server Configuration
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Host IP</label>
+                                                <input type="text" class="form-control" id="serverHost" value="0.0.0.0">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Port</label>
+                                                <input type="text" class="form-control" id="serverPort" value="8080">
+                                            </div>
+                                            <div class="mb-3">
+                                                <span class="badge bg-success me-2">Running</span>
+                                                <small class="text-muted">0.0.0.0:8080</small>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-success" id="startServerBtn" disabled>
+                                                    <i class="bi bi-play-fill"></i> Start Server
+                                                </button>
+                                                <button class="btn btn-danger" id="stopServerBtn">
+                                                    <i class="bi bi-stop-fill"></i> Stop Server
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Message Panel -->
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="bi bi-send me-2"></i>Send Message
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Target</label>
+                                                <select class="form-select" id="serverTarget">
+                                                    <option value="broadcast">Broadcast to All</option>
+                                                    <option value="192.168.1.101">Demo Client (192.168.1.101:12345)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Format</label>
+                                                <select class="form-select" id="serverFormat">
+                                                    <option value="text">Plain Text</option>
+                                                    <option value="hex">HEX</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <textarea class="form-control font-mono" id="serverMessage" rows="3" placeholder="Enter your message..."></textarea>
+                                            </div>
+                                            <button class="btn btn-primary w-100" id="sendServerMessageBtn">
+                                                <i class="bi bi-send"></i> Send Message
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Connected Clients -->
+                                <div class="col-lg-4">
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="bi bi-people me-2"></i>Connected Clients (<span id="clientCount">1</span>)
+                                            </h5>
+                                        </div>
+                                        <div class="card-body" id="serverClients">
+                                            <div class="card mb-3 client-item">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="font-mono">192.168.1.101:12345</h6>
+                                                            <small class="text-muted">Connected: 14:32:15</small>
+                                                            <br>
+                                                            <span class="badge bg-info mt-1">Demo Client</span>
+                                                        </div>
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-x"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Server Logs -->
+                                <div class="col-lg-4">
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-list-ul me-2"></i>Activity Logs
+                                                </h5>
+                                                <div class="btn-group btn-group-sm">
+                                                    <select class="form-select form-select-sm" id="serverLogFilter">
+                                                        <option value="all">All</option>
+                                                        <option value="sent">Sent</option>
+                                                        <option value="received">Received</option>
+                                                        <option value="system">System</option>
+                                                    </select>
+                                                    <button class="btn btn-outline-secondary" id="exportServerLogsBtn">
+                                                        <i class="bi bi-download"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary" id="clearServerLogsBtn">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="log-container" id="serverLogs">
+                                                <div class="log-entry log-system">[14:32:15] ⚠ Demo client connected for preview</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Mode -->
+        <div id="clientSection" class="tab-content-section d-none">
+            <div class="card custom-card shadow">
+                <!-- Client Tabs -->
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <ul class="nav nav-pills" id="clientTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="client1-tab" data-bs-toggle="pill" data-bs-target="#client1" type="button" role="tab">
+                                    Default Client
+                                    <span class="badge bg-danger ms-2">OFF</span>
+                                </button>
+                            </li>
+                        </ul>
+                        <button class="btn btn-sm btn-outline-secondary" id="addClientBtn">
+                            <i class="bi bi-plus"></i> New Client
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Client Content -->
+                <div class="card-body">
+                    <div class="tab-content" id="clientTabContent">
+                        <div class="tab-pane fade show active" id="client1" role="tabpanel">
+                            <div class="row g-4">
+                                <!-- Client Controls -->
+                                <div class="col-lg-6">
+                                    <!-- Client Configuration -->
+                                    <div class="card custom-card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <span class="status-indicator bg-danger"></span>
+                                                Client Configuration
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Server IP</label>
+                                                <input type="text" class="form-control" id="clientServerIp" value="127.0.0.1">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Server Port</label>
+                                                <input type="text" class="form-control" id="clientServerPort" value="8080">
+                                            </div>
+                                            <div class="mb-3">
+                                                <span class="badge bg-danger">Disconnected</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="autoReconnect">
+                                                    <label class="form-check-label" for="autoReconnect">
+                                                        Auto-reconnect on disconnection
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-success" id="connectBtn">
+                                                    <i class="bi bi-link"></i> Connect
+                                                </button>
+                                                <button class="btn btn-danger" id="disconnectBtn" disabled>
+                                                    <i class="bi bi-plug"></i> Disconnect
+                                                </button>
+                                                <button class="btn btn-secondary" id="reconnectBtn">
+                                                    <i class="bi bi-arrow-clockwise"></i> Reconnect
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Client Message Panel -->
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="bi bi-send me-2"></i>Send Message
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Format</label>
+                                                <select class="form-select" id="clientFormat">
+                                                    <option value="text">Plain Text</option>
+                                                    <option value="hex">HEX</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <textarea class="form-control font-mono" id="clientMessage" rows="4" placeholder="Enter your message..."></textarea>
+                                            </div>
+                                            <button class="btn btn-primary w-100" id="sendClientMessageBtn" disabled>
+                                                <i class="bi bi-send"></i> Send Message
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Client Logs -->
+                                <div class="col-lg-6">
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-list-ul me-2"></i>Communication Logs
+                                                </h5>
+                                                <div class="btn-group btn-group-sm">
+                                                    <select class="form-select form-select-sm" id="clientLogFilter">
+                                                        <option value="all">All</option>
+                                                        <option value="sent">Sent</option>
+                                                        <option value="received">Received</option>
+                                                        <option value="system">System</option>
+                                                    </select>
+                                                    <button class="btn btn-outline-secondary" id="exportClientLogsBtn">
+                                                        <i class="bi bi-download"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary" id="clearClientLogsBtn">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="log-container" id="clientLogs">
+                                                <div class="log-entry log-system">[14:32:15] ⚠ Demo client ready for connection</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Application State
+        let currentTheme = 'light';
+        let serverCounter = 1;
+        let clientCounter = 1;
+        
+        // Data structures
+        let servers = {
+            1: {
+                id: 1,
+                name: 'Default Server',
+                host: '0.0.0.0',
+                port: '8080',
+                isRunning: true,
+                clients: [
+                    {
+                        id: 'demo-1',
+                        ip: '192.168.1.101',
+                        port: '12345',
+                        connectedAt: '14:32:15',
+                        name: 'Demo Client'
+                    }
+                ],
+                logs: [
+                    {
+                        id: 'log-1',
+                        timestamp: '14:32:15',
+                        type: 'system',
+                        message: 'Demo client connected for preview'
+                    }
+                ]
+            }
+        };
+
+        let clients = {
+            1: {
+                id: 1,
+                name: 'Default Client',
+                serverIp: '127.0.0.1',
+                serverPort: '8080',
+                isConnected: false,
+                autoReconnect: false,
+                logs: [
+                    {
+                        id: 'log-1',
+                        timestamp: '14:32:15',
+                        type: 'system',
+                        message: 'Demo client ready for connection'
+                    }
+                ]
+            }
+        };
+
+        let activeServerId = 1;
+        let activeClientId = 1;
+
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            currentTheme = savedTheme;
+            document.body.setAttribute('data-bs-theme', savedTheme);
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-bs-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeIcon');
+            icon.className = currentTheme === 'light' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+        }
+
+        // Utility Functions
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString('en-US', { hour12: false });
+        }
+
+        function addLog(mode, id, type, message, client = null) {
+            const log = {
+                id: Date.now().toString(),
+                timestamp: getCurrentTime(),
+                type: type,
+                message: message,
+                client: client
+            };
+
+            if (mode === 'server') {
+                servers[id].logs.push(log);
+                if (id === activeServerId) {
+                    updateServerLogs();
+                }
+            } else {
+                clients[id].logs.push(log);
+                if (id === activeClientId) {
+                    updateClientLogs();
+                }
+            }
+        }
+
+        function getLogIcon(type) {
+            switch (type) {
+                case 'sent': return '→';
+                case 'received': return '←';
+                case 'system': return '⚠';
+                default: return '';
+            }
+        }
+
+        // Server Functions
+        function updateServerLogs() {
+            const server = servers[activeServerId];
+            const logsContainer = document.getElementById('serverLogs');
+            const filter = document.getElementById('serverLogFilter').value;
+            
+            logsContainer.innerHTML = '';
+            server.logs
+                .filter(log => filter === 'all' || log.type === filter)
+                .forEach(log => {
+                    const logDiv = document.createElement('div');
+                    logDiv.className = `log-entry log-${log.type}`;
+                    logDiv.innerHTML = `[${log.timestamp}] ${getLogIcon(log.type)} ${log.message}${log.client ? ` (${log.client})` : ''}`;
+                    logsContainer.appendChild(logDiv);
+                });
+            
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function startServer() {
+            const server = servers[activeServerId];
+            server.isRunning = true;
+            server.host = document.getElementById('serverHost').value;
+            server.port = document.getElementById('serverPort').value;
+            
+            addLog('server', activeServerId, 'system', `TCP Server started on ${server.host}:${server.port}`);
+            document.getElementById('startServerBtn').disabled = true;
+            document.getElementById('stopServerBtn').disabled = false;
+            
+            // Update tab badge
+            const tab = document.querySelector(`#server${activeServerId}-tab .badge`);
+            if (tab) {
+                tab.className = 'badge bg-success ms-2';
+                tab.textContent = 'ON';
+            }
+
+            // Simulate client connection after 2 seconds
+            setTimeout(() => {
+                const mockClient = {
+                    id: Date.now().toString(),
+                    ip: '192.168.1.100',
+                    port: Math.floor(Math.random() * 10000 + 10000).toString(),
+                    connectedAt: getCurrentTime(),
+                    name: 'Client-1'
+                };
+                servers[activeServerId].clients.push(mockClient);
+                addLog('server', activeServerId, 'system', `Client connected: ${mockClient.ip}:${mockClient.port}`);
+                updateServerClients();
+            }, 2000);
+        }
+
+        function stopServer() {
+            const server = servers[activeServerId];
+            server.isRunning = false;
+            server.clients = [];
+            
+            addLog('server', activeServerId, 'system', 'TCP Server stopped');
+            document.getElementById('startServerBtn').disabled = false;
+            document.getElementById('stopServerBtn').disabled = true;
+            
+            // Update tab badge
+            const tab = document.querySelector(`#server${activeServerId}-tab .badge`);
+            if (tab) {
+                tab.className = 'badge bg-danger ms-2';
+                tab.textContent = 'OFF';
+            }
+            
+            updateServerClients();
+        }
+
+        function updateServerClients() {
+            const server = servers[activeServerId];
+            const clientsContainer = document.getElementById('serverClients');
+            const clientCount = document.getElementById('clientCount');
+            
+            clientsContainer.innerHTML = '';
+            clientCount.textContent = server.clients.length;
+            
+            server.clients.forEach(client => {
+                const clientDiv = document.createElement('div');
+                clientDiv.className = 'card mb-3 client-item';
+                clientDiv.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="font-mono">${client.ip}:${client.port}</h6>
+                                <small class="text-muted">Connected: ${client.connectedAt}</small>
+                                <br>
+                                ${client.name ? `<span class="badge bg-info mt-1">${client.name}</span>` : ''}
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="disconnectClient('${client.id}')">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                clientsContainer.appendChild(clientDiv);
+            });
+        }
+
+        function sendServerMessage() {
+            const message = document.getElementById('serverMessage').value.trim();
+            if (!message) return;
+            
+            const target = document.getElementById('serverTarget').value;
+            const format = document.getElementById('serverFormat').value;
+            const targetName = target === 'broadcast' ? 'All Clients' : target;
+            
+            const formattedMessage = format === 'hex' ? 
+                message.split(' ').map(byte => parseInt(byte, 16)).join(' ') : message;
+            
+            addLog('server', activeServerId, 'sent', formattedMessage, targetName);
+            document.getElementById('serverMessage').value = '';
+        }
+
+        function disconnectClient(clientId) {
+            const server = servers[activeServerId];
+            const client = server.clients.find(c => c.id === clientId);
+            
+            server.clients = server.clients.filter(c => c.id !== clientId);
+            
+            if (client) {
+                addLog('server', activeServerId, 'system', `Client disconnected: ${client.ip}:${client.port}`);
+            }
+            updateServerClients();
+        }
+
+        function addServer() {
+            serverCounter++;
+            const newServer = {
+                id: serverCounter,
+                name: `Server ${serverCounter}`,
+                host: '0.0.0.0',
+                port: (8080 + serverCounter - 1).toString(),
+                isRunning: false,
+                clients: [],
+                logs: []
+            };
+            
+            servers[serverCounter] = newServer;
+            
+            // Add new tab
+            const tabsContainer = document.getElementById('serverTabs');
+            const newTab = document.createElement('li');
+            newTab.className = 'nav-item';
+            newTab.setAttribute('role', 'presentation');
+            newTab.innerHTML = `
+                <button class="nav-link" id="server${serverCounter}-tab" data-bs-toggle="pill" data-bs-target="#server${serverCounter}" type="button" role="tab">
+                    ${newServer.name}
+                    <span class="badge bg-danger ms-2">OFF</span>
+                </button>
+            `;
+            tabsContainer.appendChild(newTab);
+            
+            // Add new tab content
+            const tabContent = document.getElementById('serverTabContent');
+            const newTabPane = document.createElement('div');
+            newTabPane.className = 'tab-pane fade';
+            newTabPane.id = `server${serverCounter}`;
+            newTabPane.setAttribute('role', 'tabpanel');
+            newTabPane.innerHTML = `
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Server ${serverCounter} configuration will be loaded here.
+                        </div>
+                    </div>
+                </div>
+            `;
+            tabContent.appendChild(newTabPane);
+            
+            // Switch to new tab
+            const newTabButton = document.getElementById(`server${serverCounter}-tab`);
+            const tab = new bootstrap.Tab(newTabButton);
+            tab.show();
+        }
+
+        // Client Functions
+        function updateClientLogs() {
+            const client = clients[activeClientId];
+            const logsContainer = document.getElementById('clientLogs');
+            const filter = document.getElementById('clientLogFilter').value;
+            
+            logsContainer.innerHTML = '';
+            client.logs
+                .filter(log => filter === 'all' || log.type === filter)
+                .forEach(log => {
+                    const logDiv = document.createElement('div');
+                    logDiv.className = `log-entry log-${log.type}`;
+                    logDiv.innerHTML = `[${log.timestamp}] ${getLogIcon(log.type)} ${log.message}`;
+                    logsContainer.appendChild(logDiv);
+                });
+            
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function connectClient() {
+            const client = clients[activeClientId];
+            client.isConnected = true;
+            client.serverIp = document.getElementById('clientServerIp').value;
+            client.serverPort = document.getElementById('clientServerPort').value;
+            client.autoReconnect = document.getElementById('autoReconnect').checked;
+            
+            addLog('client', activeClientId, 'system', `Connected to TCP Server at ${client.serverIp}:${client.serverPort}`);
+            
+            document.getElementById('connectBtn').disabled = true;
+            document.getElementById('disconnectBtn').disabled = false;
+            document.getElementById('sendClientMessageBtn').disabled = false;
+            
+            // Update tab badge
+            const tab = document.querySelector(`#client${activeClientId}-tab .badge`);
+            if (tab) {
+                tab.className = 'badge bg-success ms-2';
+                tab.textContent = 'ON';
+            }
+            
+            // Simulate welcome message
+            setTimeout(() => {
+                addLog('client', activeClientId, 'received', 'Welcome to TCP Server!');
+            }, 1000);
+        }
+
+        function disconnectClient() {
+            const client = clients[activeClientId];
+            client.isConnected = false;
+            
+            addLog('client', activeClientId, 'system', `Disconnected from ${client.serverIp}:${client.serverPort}`);
+            
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+            document.getElementById('sendClientMessageBtn').disabled = true;
+            
+            // Update tab badge
+            const tab = document.querySelector(`#client${activeClientId}-tab .badge`);
+            if (tab) {
+                tab.className = 'badge bg-danger ms-2';
+                tab.textContent = 'OFF';
+            }
+        }
+
+        function reconnectClient() {
+            const client = clients[activeClientId];
+            if (client.isConnected) {
+                disconnectClient();
+                setTimeout(() => {
+                    connectClient();
+                }, 1000);
+            } else {
+                connectClient();
+            }
+        }
+
+        function sendClientMessage() {
+            const message = document.getElementById('clientMessage').value.trim();
+            if (!message) return;
+            
+            const format = document.getElementById('clientFormat').value;
+            const formattedMessage = format === 'hex' ? 
+                message.split(' ').map(byte => parseInt(byte, 16)).join(' ') : message;
+            
+            addLog('client', activeClientId, 'sent', formattedMessage);
+            document.getElementById('clientMessage').value = '';
+            
+            // Simulate server response
+            setTimeout(() => {
+                addLog('client', activeClientId, 'received', `Echo: ${formattedMessage}`);
+            }, 500);
+        }
+
+        function addClient() {
+            clientCounter++;
+            const newClient = {
+                id: clientCounter,
+                name: `Client ${clientCounter}`,
+                serverIp: '127.0.0.1',
+                serverPort: '8080',
+                isConnected: false,
+                autoReconnect: false,
+                logs: []
+            };
+            
+            clients[clientCounter] = newClient;
+            
+            // Add new tab
+            const tabsContainer = document.getElementById('clientTabs');
+            const newTab = document.createElement('li');
+            newTab.className = 'nav-item';
+            newTab.setAttribute('role', 'presentation');
+            newTab.innerHTML = `
+                <button class="nav-link" id="client${clientCounter}-tab" data-bs-toggle="pill" data-bs-target="#client${clientCounter}" type="button" role="tab">
+                    ${newClient.name}
+                    <span class="badge bg-danger ms-2">OFF</span>
+                </button>
+            `;
+            tabsContainer.appendChild(newTab);
+            
+            // Add new tab content
+            const tabContent = document.getElementById('clientTabContent');
+            const newTabPane = document.createElement('div');
+            newTabPane.className = 'tab-pane fade';
+            newTabPane.id = `client${clientCounter}`;
+            newTabPane.setAttribute('role', 'tabpanel');
+            newTabPane.innerHTML = `
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Client ${clientCounter} configuration will be loaded here.
+                        </div>
+                    </div>
+                </div>
+            `;
+            tabContent.appendChild(newTabPane);
+            
+            // Switch to new tab
+            const newTabButton = document.getElementById(`client${clientCounter}-tab`);
+            const tab = new bootstrap.Tab(newTabButton);
+            tab.show();
+        }
+
+        // Export Functions
+        function exportLogs(mode) {
+            let logs;
+            let filename;
+            
+            if (mode === 'server') {
+                logs = servers[activeServerId].logs;
+                filename = `tcp-server-logs-${servers[activeServerId].name}-${new Date().toISOString().split('T')[0]}.txt`;
+            } else {
+                logs = clients[activeClientId].logs;
+                filename = `tcp-client-logs-${clients[activeClientId].name}-${new Date().toISOString().split('T')[0]}.txt`;
+            }
+            
+            const logText = logs.map(log => 
+                `[${log.timestamp}] ${log.type.toUpperCase()}: ${log.message}`
+            ).join('\n');
+            
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearLogs(mode) {
+            if (mode === 'server') {
+                servers[activeServerId].logs = [];
+                updateServerLogs();
+            } else {
+                clients[activeClientId].logs = [];
+                updateClientLogs();
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Mode switching
+            document.getElementById('serverMode').addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('serverSection').classList.remove('d-none');
+                    document.getElementById('clientSection').classList.add('d-none');
+                }
+            });
+            
+            document.getElementById('clientMode').addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('clientSection').classList.remove('d-none');
+                    document.getElementById('serverSection').classList.add('d-none');
+                }
+            });
+            
+            // Server events
+            document.getElementById('addServerBtn').addEventListener('click', addServer);
+            document.getElementById('startServerBtn').addEventListener('click', startServer);
+            document.getElementById('stopServerBtn').addEventListener('click', stopServer);
+            document.getElementById('sendServerMessageBtn').addEventListener('click', sendServerMessage);
+            document.getElementById('exportServerLogsBtn').addEventListener('click', () => exportLogs('server'));
+            document.getElementById('clearServerLogsBtn').addEventListener('click', () => clearLogs('server'));
+            document.getElementById('serverLogFilter').addEventListener('change', updateServerLogs);
+            
+            // Client events
+            document.getElementById('addClientBtn').addEventListener('click', addClient);
+            document.getElementById('connectBtn').addEventListener('click', connectClient);
+            document.getElementById('disconnectBtn').addEventListener('click', disconnectClient);
+            document.getElementById('reconnectBtn').addEventListener('click', reconnectClient);
+            document.getElementById('sendClientMessageBtn').addEventListener('click', sendClientMessage);
+            document.getElementById('exportClientLogsBtn').addEventListener('click', () => exportLogs('client'));
+            document.getElementById('clearClientLogsBtn').addEventListener('click', () => clearLogs('client'));
+            document.getElementById('clientLogFilter').addEventListener('change', updateClientLogs);
+            
+            // Initialize logs
+            updateServerLogs();
+            updateClientLogs();
+        });
+    </script>
+</body>
+</html>

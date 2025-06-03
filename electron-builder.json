@@ -1,0 +1,17 @@
+{
+    "appId": "com.hiranidesign.tcp-server-client",
+    "productName": "TCP Server Client",
+    "files": ["dist-electron","dist-ui"],
+    "icon": "./appIcon.png",
+    "mac": {
+        "category": "public.app-category.utilities",
+        "target": ["dmg"]
+    },
+    "win": {
+        "target": ["portable","msi"]
+    },
+    "linux": {
+        "target": ["AppImage"],
+        "category": "Utility"
+    }
+}
