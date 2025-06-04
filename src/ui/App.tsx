@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import Client from './component/client/Client';
 import Server from './component/server/Server';
+import OverlayLoader from './component/loader/OverlayLoader';
+import Notification from './component/notification/Notification';
+import ConfirmationModal from './component/modal/ConfirmationModal';
 
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -22,8 +25,11 @@ function App() {
   return (
     <>
       <button className="btn btn-outline-secondary theme-toggle" onClick={toggleTheme} title="Toggle Theme">
-        <i className="bi bi-sun-fill"></i>
+        { theme === 'light' ? <i className="bi bi-moon-stars-fill"></i> : <i className="bi bi-brightness-high-fill"></i> }
       </button>
+      <OverlayLoader />
+      <Notification />
+      <ConfirmationModal />
 
       <div className="container-fluid py-4">
         {/* Header */}
