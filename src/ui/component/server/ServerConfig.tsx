@@ -34,7 +34,7 @@ function ServerConfig({ server, isActive }: ServerConfigProps) {
                             </div>
                             <div className="d-grid gap-2">
                                 { !server.status ? (
-                                    <button className="btn btn-success" id="startServerBtn" disabled>
+                                    <button className="btn btn-success" id="startServerBtn">
                                         <i className="bi bi-play-fill"></i> Start Server
                                     </button>
                                 ) : (

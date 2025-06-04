@@ -1,23 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { TServer } from "../../model/Types";
+import type { TClient } from "../../model/Types";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 interface ServerState {
-  servers: TServer[];
+  clients: TClient[];
   activeTab: number;
 }
 
 const initialState: ServerState = {
-  servers: [{ id: 1, name: "Server 1"}],
+  clients: [{ id: 1, name: "Client 1" }],
   activeTab: 1,
 };
 
-const serverSlice = createSlice({
-  name: "server",
+const clientSlice = createSlice({
+  name: "client",
   initialState,
   reducers: {
-    addServer(state, action: PayloadAction<TServer>) {
-      state.servers.push(action.payload);
+    addClient(state, action: PayloadAction<TClient>) {
+      state.clients.push(action.payload);
       state.activeTab = action.payload.id; // Set the new server as active
     },
     setActiveTab(state, action: PayloadAction<number>) {
@@ -27,5 +27,5 @@ const serverSlice = createSlice({
   },
 });
 
-export const { addServer, setActiveTab } = serverSlice.actions;
-export default serverSlice.reducer;
+export const { addClient, setActiveTab } = clientSlice.actions;
+export default clientSlice.reducer;
