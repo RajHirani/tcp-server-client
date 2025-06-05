@@ -13,9 +13,9 @@
     "preview": "vite preview",
     "transpile:electron": "tsc --project src/electron/tsconfig.json",
     "build": "npm run transpile:electron && npm run build:ui",
-    "build:mac": "npm run build:app && electron-builder --mac --arm64",
-    "build:win": "npm run build:app && electron-builder --win --x64",
-    "build:linux": "npm run build:app && electron-builder --linux --x64"
+    "build:mac": "npm run build && electron-builder --mac --arm64",
+    "build:win": "npm run build && electron-builder --win --x64",
+    "build:linux": "npm run build && electron-builder --linux --x64"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
