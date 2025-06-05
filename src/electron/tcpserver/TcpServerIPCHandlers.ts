@@ -40,3 +40,7 @@ export function registerTcpServerHandlers () {
     }
   });
 }
+
+export function stopAllRunningTCPServer() {
+  serverManager.stopAll();
+}

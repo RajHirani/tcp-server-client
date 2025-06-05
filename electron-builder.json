@@ -9,7 +9,7 @@
         "target": ["dmg"]
     },
     "win": {
-        "target": ["portable","msi"]
+        "target": ["portable"]
     },
     "linux": {
         "target": ["AppImage"],

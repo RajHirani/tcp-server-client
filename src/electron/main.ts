@@ -2,7 +2,7 @@ import { app, BrowserWindow, Menu } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
-import { registerTcpServerHandlers } from "./tcpserver/TcpServerIPCHandlers.js";
+import { registerTcpServerHandlers, stopAllRunningTCPServer } from "./tcpserver/TcpServerIPCHandlers.js";
 
 app.on("ready", () => {
     const mainWindow = new BrowserWindow({
@@ -15,7 +15,13 @@ app.on("ready", () => {
     }else{
         // Remove all menu items
         Menu.setApplicationMenu(null);
+        mainWindow.maximize();
         mainWindow.loadFile(path.join(app.getAppPath() + "/dist-ui/index.html"));
     }
     registerTcpServerHandlers();
+});
+
+// Stop all running TCP servers when the app is about to quit
+app.on("before-quit", () => {
+    stopAllRunningTCPServer();
 });
