@@ -11,7 +11,7 @@ function Server(){
 
     const addNewServer = () => {
         const newId = servers.length ? Math.max(...servers.map(s => s.id)) + 1 : 1;
-        dispatch(addServer({ id: newId, name: `Server ${newId}` }));
+        dispatch(addServer({ id: newId, name: `Server ${newId}`, host: '0.0.0.0' }));
     };
 
     return (

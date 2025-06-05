@@ -3,6 +3,7 @@ import { updateServer } from "../../store/slices/ServerSlice";
 import { addNotification } from "../../store/slices/NotificationSlice";
 import ActivityLog from "../activitylog/ActivityLog";
 import ClientList from "../client-list/ClientList";
+import ServerMessagePanel from "../massagepanel/ServerMessagePanel";
 
 interface ServerConfigProps {
     server: CustomServer;
@@ -89,43 +90,15 @@ function ServerConfig({ server, isActive }: ServerConfigProps) {
                     </div>
 
                     {/* <!-- Message Panel --> */}
-                    <div className="card custom-card">
-                        <div className="card-header">
-                            <h5 className="card-title mb-0">
-                                <i className="bi bi-send me-2"></i>Send Message
-                            </h5>
-                        </div>
-                        <div className="card-body">
-                            <div className="mb-3">
-                                <label className="form-label">Target</label>
-                                <select className="form-select" id="serverTarget">
-                                    <option value="broadcast">Broadcast to All</option>
-                                    <option value="192.168.1.101">Demo Client (192.168.1.101:12345)</option>
-                                </select>
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Format</label>
-                                <select className="form-select" id="serverFormat">
-                                    <option value="text">Plain Text</option>
-                                    <option value="hex">HEX</option>
-                                </select>
-                            </div>
-                            <div className="mb-3">
-                                <textarea className="form-control font-mono" id="serverMessage" rows={3} placeholder="Enter your message..."></textarea>
-                            </div>
-                            <button className="btn btn-primary w-100" id="sendServerMessageBtn">
-                                <i className="bi bi-send"></i> Send Message
-                            </button>
-                        </div>
-                    </div>
+                    <ServerMessagePanel server={server}/>
                 </div>
                 {/* <!-- Connected Clients --> */}
                 <div className="col-lg-4">
-                    <ClientList />
+                    <ClientList server={server} />
                 </div>
                 {/* <!-- Server Logs --> */}
                 <div className="col-lg-4">
-                    <ActivityLog />
+                    <ActivityLog server={server}/>
                 </div>
             </div>
         </div>
