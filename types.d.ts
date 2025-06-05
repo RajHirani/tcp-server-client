@@ -10,7 +10,7 @@ type CustomServer = {
   id: number;
   name: string;
   host?: string;
-  port?: number | null;
+  port?: number | undefined;
   status?: boolean
 }
 

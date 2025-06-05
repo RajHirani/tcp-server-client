@@ -1,7 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
-import { get } from "http";
 import { getPreloadPath } from "./pathResolver.js";
 import { registerTcpServerHandlers } from "./tcpserver/TcpServerIPCHandlers.js";
 
