@@ -1,6 +1,7 @@
 {
     "appId": "com.hiranidesign.tcp-server-client",
     "productName": "TCP Server Client",
+    "extraResources": ["dist-electron/preload.cjs", "src/assets/**"],
     "files": ["dist-electron","dist-ui"],
     "icon": "./appIcon.png",
     "mac": {

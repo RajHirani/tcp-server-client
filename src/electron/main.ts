@@ -1,14 +1,16 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
+import { get } from "http";
+import { getPreloadPath } from "./pathResolver.js";
+import { registerTcpServerHandlers } from "./tcpserver/TcpServerIPCHandlers.js";
 
 app.on("ready", () => {
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false, // Note: This is not recommended for production apps
+            preload: getPreloadPath(),
         },
     });
     if(isDev()){
@@ -16,5 +18,6 @@ app.on("ready", () => {
     }else{
         mainWindow.loadFile(path.join(app.getAppPath() + "/dist-ui/index.html"));
     }
-    
+
+    registerTcpServerHandlers();
 });
