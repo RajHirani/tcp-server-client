@@ -1,4 +1,3 @@
-![Project Logo](./images/appIcon.png)
 # TCP Server/Client Communication Tool
 ![App Icon](./images/appIcon.png)
 
