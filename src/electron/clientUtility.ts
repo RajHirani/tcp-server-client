@@ -8,3 +8,12 @@ export function publishClientInfo(clients: ClientConfig[], server: CustomServer)
     }
   }
 }
+
+export function publishTcpClientConnection(clientConfig: ClientConfig) {
+  if(BrowserWindow.getAllWindows().length){
+    const win = BrowserWindow.getAllWindows()[0];
+    if (win && !win.isDestroyed()) {
+      win.webContents.send(`tcpClientConnection-${clientConfig.id}`, clientConfig);
+    }
+  }
+}

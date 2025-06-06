@@ -23,4 +23,23 @@ electron.contextBridge.exposeInMainWorld('electron', {
   disconnectClient(serverId, clientConfig) {
     return electron.ipcRenderer.invoke("disconnectClient", serverId, clientConfig);
   },
+  connectTcpClient(clientConfig) {
+    return electron.ipcRenderer.invoke("connectTcpClient", clientConfig)
+  },
+  disconnectTcpClient(clientConfig) {
+    return electron.ipcRenderer.invoke("disconnectTcpClient", clientConfig)
+  },
+  subscribeToTcpClientLogs(clientId, cb) {
+    const callback = (_: Electron.IpcRendererEvent, log : Log) => cb(log);
+    electron.ipcRenderer.on(`tcpClientLogs-${clientId}`, callback);
+    return () => electron.ipcRenderer.off(`tcpClientLogs-${clientId}`, callback);
+  },
+  subscribeToTcpClientConnection(clientId, cb) {
+    const callback = (_: Electron.IpcRendererEvent, client: ClientConfig) => cb(client);
+    electron.ipcRenderer.on(`tcpClientConnection-${clientId}`, callback);
+    return () => electron.ipcRenderer.off(`tcpClientConnection-${clientId}`, callback);
+  },
+  sendClientMessage(clientId, message) {
+    return electron.ipcRenderer.invoke('sendClientMessage', clientId, message);
+  },
 } satisfies Window['electron']);

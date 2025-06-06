@@ -12,7 +12,7 @@ function Client(){
 
     const addNewClient = () => {
         const newId = clients.length ? Math.max(...clients.map(s => s.id)) + 1 : 1;
-        dispatch(addClient({ id: newId, name: `Client ${newId}` }));
+        dispatch(addClient({ id: newId, name: `Client ${newId}`, server: { id: newId, name: `Server ${newId}` } }));
     };
 
     return (

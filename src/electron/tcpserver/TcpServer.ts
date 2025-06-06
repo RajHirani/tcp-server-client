@@ -51,7 +51,7 @@ export class TcpServer {
           this.clients.delete(socket);
           const client = this.getClientConfig(socket); // Ensure client config is updated
           this.removeClientConfig(client);
-          publishLog(`${client?.name + ' ' || ''}disconnected from ${socket.remoteAddress}:${socket.remotePort}`, this.customServer, 'system');
+          publishLog(`${client ? client.name + ' ' : ''}disconnected from ${socket.remoteAddress}:${socket.remotePort}`, this.customServer, 'system');
           this.events.onClientDisconnected?.(socket, this.serverId);
         });
 
@@ -149,18 +149,6 @@ export class TcpServer {
     }
     this.customServer.status = false; // Update the custom server status
     return this.customServer;
-  }
-
-  getId() {
-    return this.serverId;
-  }
-
-  getAddress() {
-    return this.address;
-  }
-
-  getPort() {
-    return this.port;
   }
 
   addClientConfig(socket: Socket) {

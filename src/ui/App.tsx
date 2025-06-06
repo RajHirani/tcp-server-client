@@ -47,14 +47,18 @@ function App() {
               <i className="bi bi-hdd-network me-2"></i>TCP Server
             </label>
 
-            {/* <input type="radio" className="btn-check" name="mode" id="clientMode" autoComplete="off" value="client" checked={mode === "client"} onChange={handleModeChange}/>
+            <input type="radio" className="btn-check" name="mode" id="clientMode" autoComplete="off" value="client" checked={mode === "client"} onChange={handleModeChange}/>
             <label className="btn btn-outline-primary" htmlFor='clientMode'>
               <i className="bi bi-router me-2"></i>TCP Client
-            </label> */}
+            </label>
           </div>
         </div>
-
-        {mode === 'server' ? <Server /> : <Client /> }
+        <div style={{ display: mode === 'server' ? 'block' : 'none' }}>
+          <Server />
+        </div>
+        <div style={{ display: mode === 'client' ? 'block' : 'none' }}>
+          <Client />
+        </div>
       </div>
     </>
   )

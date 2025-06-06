@@ -7,6 +7,11 @@ interface Window{
         subscribeToClientConnections(serverId: number, cb: (clients: ClientConfig[]) => void): () => void;
         sendServerMessage(serverId: unmber,message: ServerMessage): Promise<boolean>;
         disconnectClient(serverId: number, clientConfig: ClientConfig): Promise<void>;
+        connectTcpClient(clientConfig: ClientConfig): Promise<ClientConfig>;
+        disconnectTcpClient(clientConfig: ClientConfig): Promise<ClientConfig>;
+        subscribeToTcpClientLogs(clientId: number, cb : (log: Log) => void) : () => void;
+        subscribeToTcpClientConnection(clientId: number, cb : (client: ClientConfig) => void) : () => void;
+        sendClientMessage(clientId: unmber,message: ServerMessage): Promise<boolean>;
     }
 }
 
